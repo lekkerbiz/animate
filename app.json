@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "animate",
+    "name": "AniMate",
     "slug": "animate",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "animate",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/expo.icon"
     },
@@ -28,9 +28,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#D81965",
+          "image": "./assets/brand/splash-logo.png",
+          "imageWidth": 200
         }
       ]
     ],
