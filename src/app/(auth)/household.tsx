@@ -27,10 +27,13 @@ type Mode = 'create' | 'join';
 
 export default function Household() {
   const insets = useSafeAreaInsets();
-  const { refreshCaregiver, signOut } = useAuth();
+  const { session, refreshCaregiver, signOut } = useAuth();
+  const metadata = session?.user.user_metadata ?? {};
   const [mode, setMode] = useState<Mode>('create');
 
-  const [name, setName] = useState('');
+  // El nombre y el avatar vienen del perfil (pantalla anterior); el nombre sigue editable
+  const [name, setName] = useState<string>(metadata.full_name ?? '');
+  const emoji: string = metadata.emoji ?? '🙂';
   const [petName, setPetName] = useState('');
   const [species, setSpecies] = useState(SPECIES[0]);
   const [inviteCode, setInviteCode] = useState('');
@@ -53,7 +56,7 @@ export default function Household() {
     const { error: err } = await supabase.rpc('create_household', {
       p_household_name: `Casa de ${petName.trim()}`,
       p_caregiver_name: name.trim(),
-      p_caregiver_emoji: '🙂',
+      p_caregiver_emoji: emoji,
       p_pet_name: petName.trim(),
       p_pet_species: species.key,
       p_pet_emoji: species.emoji,
@@ -76,7 +79,7 @@ export default function Household() {
     const { error: err } = await supabase.rpc('accept_invite', {
       p_code: inviteCode.trim().toUpperCase(),
       p_name: name.trim(),
-      p_emoji: '🙂',
+      p_emoji: emoji,
     });
     setSaving(false);
     if (err) {
@@ -101,6 +104,7 @@ export default function Household() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
+          <Text style={styles.step}>Paso 2 de 2</Text>
           <Title>¡Ya casi está!</Title>
           <Subtitle>Crea el espacio de tu mascota o únete al de tu familia.</Subtitle>
         </View>
@@ -207,6 +211,11 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: Spacing.m,
+  },
+  step: {
+    fontFamily: Fonts.semiBold,
+    fontSize: 14,
+    color: Colors.primary,
   },
   segment: {
     flexDirection: 'row',
