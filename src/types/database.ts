@@ -46,6 +46,9 @@ type MedicationRow = {
   dose: string;
   instructions: string | null;
   active: boolean;
+  // vigencia de la pauta: genera tomas entre estas fechas, sin fin = indefinida
+  starts_on: string;
+  ends_on: string | null;
   created_at: string;
 };
 
@@ -55,14 +58,40 @@ type ScheduleRow = {
   time: string;
 };
 
+type DoseStatus = 'dada' | 'omitida' | 'rechazada';
+
 type DoseLogRow = {
   id: string;
   household_id: string;
   schedule_id: string | null;
+  pet_id: string | null;
   date: string;
+  status: DoseStatus;
+  // copia del momento de la toma, para que el historial sobreviva a que se
+  // borre la medicina o se cambie la pauta
+  medication_name: string | null;
+  medication_dose: string | null;
+  scheduled_time: string | null;
   given_by: string | null;
   given_at: string;
   notes: string | null;
+};
+
+type EventKind = 'sintoma' | 'visita' | 'vacuna' | 'peso' | 'otro';
+
+type EventRow = {
+  id: string;
+  household_id: string;
+  pet_id: string;
+  kind: EventKind;
+  occurred_on: string;
+  occurred_at: string | null;
+  title: string;
+  notes: string | null;
+  value: number | null;
+  unit: string | null;
+  created_by: string | null;
+  created_at: string;
 };
 
 type InviteRow = {
@@ -92,6 +121,7 @@ export type Database = {
       medications: Table<MedicationRow, 'pet_id' | 'name' | 'dose'>;
       schedules: Table<ScheduleRow, 'medication_id' | 'time'>;
       dose_logs: Table<DoseLogRow, 'household_id' | 'date'>;
+      events: Table<EventRow, 'household_id' | 'pet_id' | 'kind' | 'occurred_on' | 'title'>;
       invites: Table<InviteRow, 'household_id'>;
     };
     Views: Record<string, never>;
@@ -136,4 +166,6 @@ export type { PetSex };
 export type Medication = MedicationRow;
 export type Schedule = ScheduleRow;
 export type DoseLog = DoseLogRow;
+export type Event = EventRow;
 export type Invite = InviteRow;
+export type { DoseStatus, EventKind };
