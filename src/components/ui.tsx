@@ -73,6 +73,57 @@ export function Field({ label, error, style, ...rest }: FieldProps) {
   );
 }
 
+type ChipOption<T extends string> = {
+  key: T;
+  label: string;
+  emoji?: string;
+};
+
+type ChipGroupProps<T extends string> = {
+  label?: string;
+  options: readonly ChipOption<T>[];
+  // string, no T: el valor guardado puede no estar entre las opciones
+  // (p. ej. una especie antigua), y entonces no se marca ninguna.
+  value: string | null;
+  onChange: (key: T) => void;
+};
+
+export function ChipGroup<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: ChipGroupProps<T>) {
+  return (
+    <View style={styles.fieldWrap}>
+      {label ? <Text style={styles.fieldLabel}>{label}</Text> : null}
+      <View style={styles.chipRow}>
+        {options.map((option) => {
+          const active = option.key === value;
+          return (
+            <Pressable
+              key={option.key}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: active }}
+              onPress={() => onChange(option.key)}
+              style={({ pressed }) => [
+                styles.chip,
+                active && styles.chipActive,
+                pressed && styles.btnPressed,
+              ]}
+            >
+              {option.emoji ? <Text style={styles.chipEmoji}>{option.emoji}</Text> : null}
+              <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>
+                {option.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 export function Title({ children }: { children: React.ReactNode }) {
   return <Text style={styles.title}>{children}</Text>;
 }
@@ -148,6 +199,38 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.medium,
     fontSize: 13,
     color: Colors.danger,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.s,
+  },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    minHeight: 44,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
+    paddingHorizontal: Spacing.m,
+  },
+  chipActive: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.pinkSoft,
+  },
+  chipEmoji: {
+    fontSize: 18,
+  },
+  chipLabel: {
+    fontFamily: Fonts.medium,
+    fontSize: 15,
+    color: Colors.inkSecondary,
+  },
+  chipLabelActive: {
+    fontFamily: Fonts.bold,
+    color: Colors.primary,
   },
   title: {
     fontFamily: Fonts.bold,

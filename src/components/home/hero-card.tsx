@@ -1,5 +1,6 @@
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Fonts, Gradients, Hero, Radius, Spacing } from '@/constants/theme';
 import type { Pet } from '@/types/database';
@@ -12,21 +13,31 @@ type Metric = {
 type Props = {
   pet: Pet;
   metrics: Metric[];
+  onPress: () => void;
 };
 
-export function HeroCard({ pet, metrics }: Props) {
+export function HeroCard({ pet, metrics, onPress }: Props) {
   return (
-    <LinearGradient
-      colors={Gradients.hero}
-      start={{ x: 0, y: 0.2 }}
-      end={{ x: 1, y: 0.8 }}
-      style={styles.card}
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Ficha de ${pet.name}`}
+      onPress={onPress}
+      style={({ pressed }) => pressed && styles.pressed}
     >
+      <LinearGradient
+        colors={Gradients.hero}
+        start={{ x: 0, y: 0.2 }}
+        end={{ x: 1, y: 0.8 }}
+        style={styles.card}
+      >
       <View style={styles.topRow}>
         <View style={styles.titleWrap}>
-          <Text style={styles.name}>
-            {pet.name} <Text style={styles.nameEmoji}>{pet.emoji}</Text>
-          </Text>
+          <View style={styles.nameRow}>
+            <Text style={styles.name} numberOfLines={1}>
+              {pet.name} <Text style={styles.nameEmoji}>{pet.emoji}</Text>
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.75)" />
+          </View>
           <Text style={styles.species}>{capitalize(pet.species)}</Text>
         </View>
         <View style={styles.statusPill}>
@@ -42,7 +53,8 @@ export function HeroCard({ pet, metrics }: Props) {
           </View>
         ))}
       </View>
-    </LinearGradient>
+      </LinearGradient>
+    </Pressable>
   );
 }
 
@@ -51,10 +63,18 @@ function capitalize(value: string) {
 }
 
 const styles = StyleSheet.create({
+  pressed: {
+    opacity: 0.9,
+  },
   card: {
     borderRadius: Radius.l,
     padding: Spacing.l,
     gap: Spacing.l,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
   },
   topRow: {
     flexDirection: 'row',
@@ -67,6 +87,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   name: {
+    flexShrink: 1,
     fontFamily: Fonts.extraBold,
     fontSize: 26,
     color: Colors.white,

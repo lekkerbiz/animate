@@ -97,7 +97,11 @@ export default function Home() {
 
         {selectedPet ? (
           <View style={styles.cards}>
-            <HeroCard pet={selectedPet} metrics={metrics} />
+            <HeroCard
+              pet={selectedPet}
+              metrics={metrics}
+              onPress={() => router.push(`/pet/${selectedPet.id}`)}
+            />
             <MedsCard
               doses={doses}
               onToggle={(dose) => caregiver && toggleDose(dose, caregiver.id)}
