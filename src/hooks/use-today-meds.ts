@@ -25,11 +25,14 @@ export function useTodayMeds(petId: string | null, householdId: string | null) {
   const refresh = useCallback(async () => {
     if (!petId || !householdId) return;
 
+    // Vigentes hoy según starts_on/ends_on, no según el booleano `active`:
+    // desde la migración del calendario son las fechas las que mandan
     const { data: meds } = await supabase
       .from('medications')
       .select('*')
       .eq('pet_id', petId)
-      .eq('active', true)
+      .lte('starts_on', today)
+      .or(`ends_on.is.null,ends_on.gte.${today}`)
       .order('created_at');
     const medIds = (meds ?? []).map((m) => m.id);
 
@@ -111,18 +114,30 @@ export function useTodayMeds(petId: string | null, householdId: string | null) {
       const optimistic: DoseLog = {
         id: `optimistic-${dose.schedule.id}`,
         household_id: householdId,
+        pet_id: petId,
         schedule_id: dose.schedule.id,
         date: today,
+        status: 'dada',
+        medication_name: dose.medication.name,
+        medication_dose: dose.medication.dose,
+        scheduled_time: dose.schedule.time,
         given_by: caregiverId,
         given_at: new Date().toISOString(),
         notes: null,
       };
       setLogs((prev) => [...prev, optimistic]);
 
+      // pet_id y la copia del nombre no son opcionales: el calendario filtra
+      // por mascota, y sin ellos esta toma sería invisible allí
       const { error } = await supabase.from('dose_logs').insert({
         household_id: householdId,
+        pet_id: petId,
         schedule_id: dose.schedule.id,
         date: today,
+        status: 'dada',
+        medication_name: dose.medication.name,
+        medication_dose: dose.medication.dose,
+        scheduled_time: dose.schedule.time,
         given_by: caregiverId,
       });
       // 23505 = otro cuidador la marcó justo antes; en cualquier caso, re-sincroniza
@@ -131,7 +146,7 @@ export function useTodayMeds(petId: string | null, householdId: string | null) {
         console.warn('No se pudo registrar la toma:', error.message);
       }
     },
-    [householdId, today, refresh]
+    [householdId, petId, today, refresh]
   );
 
   return { doses, medications, loading, refresh, toggleDose };

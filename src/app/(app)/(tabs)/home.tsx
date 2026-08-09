@@ -5,7 +5,6 @@ import { useCallback, useMemo, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Dock } from '@/components/home/dock';
 import { HeroCard } from '@/components/home/hero-card';
 import { MedsCard } from '@/components/home/meds-card';
 import { PetStories } from '@/components/home/pet-stories';
@@ -113,7 +112,6 @@ export default function Home() {
         ) : null}
       </ScrollView>
 
-      <Dock />
     </View>
   );
 }

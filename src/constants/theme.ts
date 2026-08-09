@@ -13,6 +13,7 @@ export const Colors = {
   glassStrong: 'rgba(255,255,255,0.2)',
   border: '#ECECEF',
   danger: '#D0342C',
+  success: '#1A832E',
 };
 
 export const Gradients = {

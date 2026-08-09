@@ -27,8 +27,15 @@ export function formatSpanishDate(iso: string | null): string {
 /**
  * "15/03/2024" → "2024-03-15". Devuelve undefined si el texto no es una fecha
  * válida, para poder distinguirlo de "el campo está vacío" (null).
+ *
+ * Por defecto rechaza el futuro, que es lo que quieren un nacimiento o un
+ * evento ya ocurrido. La vigencia de una pauta sí puede empezar o acabar
+ * mañana, y para eso está `allowFuture`.
  */
-export function parseSpanishDate(value: string): string | null | undefined {
+export function parseSpanishDate(
+  value: string,
+  { allowFuture = false }: { allowFuture?: boolean } = {}
+): string | null | undefined {
   const trimmed = value.trim();
   if (!trimmed) return null;
 
@@ -41,7 +48,7 @@ export function parseSpanishDate(value: string): string | null | undefined {
   if (Number.isNaN(parsed.getTime())) return undefined;
   // rechaza 31/02: el Date se desborda al mes siguiente y cambia el día
   if (parsed.getDate() !== Number(d) || parsed.getMonth() + 1 !== Number(m)) return undefined;
-  if (parsed > new Date()) return undefined;
+  if (!allowFuture && iso > todayLocalISO()) return undefined;
 
   return iso;
 }

@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button, Field, Subtitle, Title } from '@/components/ui';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
+import { formatSpanishDate, parseSpanishDate, todayLocalISO } from '@/lib/dates';
 import { supabase } from '@/lib/supabase';
 
 const TIME_RE = /^([01]?\d|2[0-3]):([0-5]\d)$/;
@@ -28,6 +29,9 @@ export default function MedicationNew() {
   const [instructions, setInstructions] = useState('');
   const [times, setTimes] = useState<string[]>([]);
   const [timeDraft, setTimeDraft] = useState('');
+  const [startsOn, setStartsOn] = useState(formatSpanishDate(todayLocalISO()));
+  const [endsOn, setEndsOn] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -57,6 +61,21 @@ export default function MedicationNew() {
       setError('Añade al menos una hora de toma');
       return;
     }
+
+    // la vigencia sí puede mirar al futuro: una pauta puede empezar mañana
+    const parsedStart = parseSpanishDate(startsOn, { allowFuture: true });
+    const parsedEnd = parseSpanishDate(endsOn, { allowFuture: true });
+    const nextErrors: Record<string, string> = {};
+    if (parsedStart === undefined || parsedStart === null) {
+      nextErrors.startsOn = 'Fecha no válida (DD/MM/AAAA).';
+    }
+    if (parsedEnd === undefined) nextErrors.endsOn = 'Fecha no válida (DD/MM/AAAA).';
+    if (parsedStart && parsedEnd && parsedEnd < parsedStart) {
+      nextErrors.endsOn = 'No puede terminar antes de empezar.';
+    }
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length) return;
+
     setError(null);
     setSaving(true);
 
@@ -67,6 +86,8 @@ export default function MedicationNew() {
         name: name.trim(),
         dose: dose.trim(),
         instructions: instructions.trim() || null,
+        starts_on: parsedStart as string,
+        ends_on: parsedEnd,
       })
       .select('id')
       .single();
@@ -121,6 +142,29 @@ export default function MedicationNew() {
           value={instructions}
           onChangeText={setInstructions}
         />
+
+        <View style={styles.pair}>
+          <View style={styles.pairItem}>
+            <Field
+              label="Empieza"
+              value={startsOn}
+              onChangeText={setStartsOn}
+              placeholder="DD/MM/AAAA"
+              keyboardType="numbers-and-punctuation"
+              error={errors.startsOn}
+            />
+          </View>
+          <View style={styles.pairItem}>
+            <Field
+              label="Termina"
+              value={endsOn}
+              onChangeText={setEndsOn}
+              placeholder="Sin fin"
+              keyboardType="numbers-and-punctuation"
+              error={errors.endsOn}
+            />
+          </View>
+        </View>
 
         <View style={styles.timesWrap}>
           <Text style={styles.timesLabel}>Horas de toma</Text>
@@ -202,6 +246,13 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: Spacing.m,
+  },
+  pair: {
+    flexDirection: 'row',
+    gap: Spacing.m,
+  },
+  pairItem: {
+    flex: 1,
   },
   timesWrap: {
     gap: Spacing.m,
