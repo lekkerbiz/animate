@@ -33,7 +33,15 @@
           "image": "./assets/brand/splash-logo.png",
           "imageWidth": 200
         }
-      ]
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "AniMate necesita acceso a tus fotos para poner la foto de tu mascota.",
+          "cameraPermission": "AniMate necesita la cámara para hacerle una foto a tu mascota."
+        }
+      ],
+      "expo-image"
     ],
     "experiments": {
       "typedRoutes": true,
