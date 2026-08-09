@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -58,7 +59,10 @@ export default function PetNew() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <StatusBar style="dark" />
-      <View style={[styles.content, { paddingTop: insets.top + Spacing.xl }]}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + Spacing.xl }]}
+        keyboardShouldPersistTaps="handled"
+      >
         <Pressable accessibilityRole="button" onPress={() => router.back()} hitSlop={12}>
           <Text style={styles.back}>← Volver</Text>
         </Pressable>
@@ -95,7 +99,7 @@ export default function PetNew() {
             ))}
           </View>
         </View>
-      </View>
+      </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + Spacing.l }]}>
         <Button label="Añadir mascota" loading={saving} onPress={save} />
@@ -109,9 +113,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.pinkSoft,
   },
+  // sin flex:1: es el contentContainer de un ScrollView, y con el teclado
+  // abierto debe poder crecer y desplazarse, no encogerse bajo el footer
   content: {
-    flex: 1,
     paddingHorizontal: Spacing.l,
+    paddingBottom: Spacing.xl,
     gap: Spacing.l,
   },
   back: {
