@@ -16,6 +16,8 @@ type CaregiverRow = {
   created_at: string;
 };
 
+type PetSex = 'macho' | 'hembra' | 'desconocido';
+
 type PetRow = {
   id: string;
   household_id: string;
@@ -23,6 +25,17 @@ type PetRow = {
   species: string;
   emoji: string;
   notes: string | null;
+  breed: string | null;
+  sex: PetSex | null;
+  birth_date: string | null;
+  weight_kg: number | null;
+  height_cm: number | null;
+  color: string | null;
+  bio: string | null;
+  behavior: string[];
+  microchip: string | null;
+  // ruta en el bucket pet-photos; hay que firmarla para poder mostrarla
+  photo_path: string | null;
   created_at: string;
 };
 
@@ -106,6 +119,10 @@ export type Database = {
         Args: { h: string };
         Returns: boolean;
       };
+      try_uuid: {
+        Args: { value: string };
+        Returns: string | null;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
@@ -115,6 +132,7 @@ export type Database = {
 export type Household = HouseholdRow;
 export type Caregiver = CaregiverRow;
 export type Pet = PetRow;
+export type { PetSex };
 export type Medication = MedicationRow;
 export type Schedule = ScheduleRow;
 export type DoseLog = DoseLogRow;
